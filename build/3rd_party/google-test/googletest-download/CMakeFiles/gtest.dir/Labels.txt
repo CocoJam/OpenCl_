@@ -1,0 +1,13 @@
+# Target labels
+ gtest
+# Source files and their labels
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/CMakeFiles/gtest
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/CMakeFiles/gtest.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/CMakeFiles/gtest-complete.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-install.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-mkdir.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-download.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-update.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-patch.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-configure.rule
+C:/Users/james/Desktop/cpp/leetcode/build/3rd_party/google-test/googletest-download/gtest-prefix/src/gtest-stamp/gtest-build.rule

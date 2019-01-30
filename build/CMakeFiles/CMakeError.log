@@ -1,0 +1,87 @@
+Determining if the CL_VERSION_2_2 exist failed with the following output:
+Change Dir: C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/james/Anaconda3/Library/bin/ninja.exe" "cmTC_9d98e"
+[1/2] Building C object CMakeFiles/cmTC_9d98e.dir/CheckSymbolExists.c.obj
+FAILED: CMakeFiles/cmTC_9d98e.dir/CheckSymbolExists.c.obj 
+C:\Users\james\Anaconda3\Library\mingw-w64\bin\cc.exe  -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include"  -o CMakeFiles/cmTC_9d98e.dir/CheckSymbolExists.c.obj   -c CheckSymbolExists.c
+CheckSymbolExists.c: In function 'main':
+CheckSymbolExists.c:8:19: error: 'CL_VERSION_2_2' undeclared (first use in this function)
+   return ((int*)(&CL_VERSION_2_2))[argc];
+                   ^
+CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+ninja: build stopped: subcommand failed.
+
+File C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_2
+  return ((int*)(&CL_VERSION_2_2))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the CL_VERSION_2_1 exist failed with the following output:
+Change Dir: C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/james/Anaconda3/Library/bin/ninja.exe" "cmTC_c3815"
+[1/2] Building C object CMakeFiles/cmTC_c3815.dir/CheckSymbolExists.c.obj
+FAILED: CMakeFiles/cmTC_c3815.dir/CheckSymbolExists.c.obj 
+C:\Users\james\Anaconda3\Library\mingw-w64\bin\cc.exe  -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include"  -o CMakeFiles/cmTC_c3815.dir/CheckSymbolExists.c.obj   -c CheckSymbolExists.c
+CheckSymbolExists.c: In function 'main':
+CheckSymbolExists.c:8:19: error: 'CL_VERSION_2_1' undeclared (first use in this function)
+   return ((int*)(&CL_VERSION_2_1))[argc];
+                   ^
+CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+ninja: build stopped: subcommand failed.
+
+File C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_1
+  return ((int*)(&CL_VERSION_2_1))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the CL_VERSION_2_0 exist failed with the following output:
+Change Dir: C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/james/Anaconda3/Library/bin/ninja.exe" "cmTC_d426f"
+[1/2] Building C object CMakeFiles/cmTC_d426f.dir/CheckSymbolExists.c.obj
+FAILED: CMakeFiles/cmTC_d426f.dir/CheckSymbolExists.c.obj 
+C:\Users\james\Anaconda3\Library\mingw-w64\bin\cc.exe  -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include"  -o CMakeFiles/cmTC_d426f.dir/CheckSymbolExists.c.obj   -c CheckSymbolExists.c
+CheckSymbolExists.c: In function 'main':
+CheckSymbolExists.c:8:19: error: 'CL_VERSION_2_0' undeclared (first use in this function)
+   return ((int*)(&CL_VERSION_2_0))[argc];
+                   ^
+CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+ninja: build stopped: subcommand failed.
+
+File C:/Users/james/Desktop/cpp/leetcode/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/include/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_0
+  return ((int*)(&CL_VERSION_2_0))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
