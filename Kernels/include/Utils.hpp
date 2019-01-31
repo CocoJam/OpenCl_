@@ -30,7 +30,7 @@ private:
     std::string prefix_platform;
     cl::Context context; 
     void default_device_(std::string str);
-    void GetDevice_(cl::Platform& plateform, int cl_type);
+    std::vector<cl::Device> GetDevice_(cl::Platform& plateform, int cl_type);
     template<class T>
     cl::Context context_(T device){
     cl::Context context(device, NULL, NULL,NULL, &this->ciErrNum);
@@ -65,17 +65,17 @@ public:
     Utils();
     Utils(bool gpu);
     Utils(std::string prefix_);
-    void getPlateform();
-    void GetDevice(cl::Platform& plateform);
-    void GetDevice(cl::Platform& plateform, int cl_type);
+    std::vector<cl::Platform> getPlateform();
+    std::vector<cl::Device> GetDevice(cl::Platform& plateform);
+    std::vector<cl::Device> GetDevice(cl::Platform& plateform, int cl_type);
     void setDefaultDevice(cl::Device& default_device);
     void setDefaultDevice(std::string str);
     void setDefaultDevice();
     std::vector<cl::Device> getAllDevices();
     void DeviceInfo();
     void DeviceInfo(cl::Device);
-    cl::Context context();
-    cl::Context context(std::vector<cl::Device> devices);
+    cl::Context setContext();
+    cl::Context setContext(std::vector<cl::Device> devices);
     ~Utils();
 };
 #endif

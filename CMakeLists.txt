@@ -46,5 +46,5 @@ add_dependencies(main OpenCL::OpenCL)
 # add_dependencies(main data_structure)
 add_dependencies(main kernels)
 add_subdirectory(3rd_party/google-test)
-# add_subdirectory(Test)
+add_subdirectory(Test)
 

@@ -6,6 +6,7 @@ enable_testing()
 file(GLOB_RECURSE unit_general_test_files ${CMAKE_CURRENT_SOURCE_DIR}/General/*.cpp)
 file(GLOB_RECURSE unit_data_structure_test_files ${CMAKE_CURRENT_SOURCE_DIR}/Data_structure/*.cpp)
 
+file(GLOB_RECURSE unit_OpenCL_test_files ${CMAKE_CURRENT_SOURCE_DIR}/Opencl/*.cpp)
 
 function(test_generation file_item file_name type_of_library GTEST GMAIN)
     
@@ -31,4 +32,8 @@ endforeach()
 
 foreach(item ${unit_data_structure_test_files})
 test_generation(${item} ${item} data_structure  GTest::GTest  GTest::Main)
+endforeach()
+
+foreach(item ${unit_OpenCL_test_files})
+test_generation(${item} ${item} kernels  GTest::GTest  GTest::Main)
 endforeach()

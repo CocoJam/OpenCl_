@@ -79,34 +79,31 @@ void Utils::setDefaultDevice(cl::Device& default_device){
     return;
 }
 
-void Utils::getPlateform(){
+std::vector<cl::Platform> Utils::getPlateform(){
 
     cl::Platform::get(&this->all_platforms);
     
-    return;
+    return this->all_platforms;
 }
 
-void Utils::GetDevice_(cl::Platform& platform, int cl_type){
+std::vector<cl::Device> Utils::GetDevice_(cl::Platform& platform, int cl_type){
     cl::Platform default_platform= platform;
     std::cout << "Using platform: "<<default_platform.getInfo<CL_PLATFORM_NAME>()<<"\n";
     std::vector<cl::Device> all_devices;
-    
     std::cout<< CL_DEVICE_TYPE_ALL<<std::endl;
     cl_type = cl_type == 0? CL_DEVICE_TYPE_ALL: cl_type;
     default_platform.getDevices(cl_type, &all_devices);
     this->all_devices.resize(this->all_devices.size()+all_devices.size()); 
     std::copy_backward(all_devices.begin(), all_devices.end(), this->all_devices.end() );
-    return;
+    return all_devices;
 }
 
-void Utils::GetDevice(cl::Platform& platform){
-        GetDevice_(platform, 0);
-        return;
+std::vector<cl::Device> Utils::GetDevice(cl::Platform& platform){
+        return GetDevice_(platform, 0);
 }
 
-void Utils::GetDevice(cl::Platform& platform, int cl_type){
-        GetDevice_(platform, cl_type);
-        return;
+std::vector<cl::Device> Utils::GetDevice(cl::Platform& platform, int cl_type){
+        return GetDevice_(platform, cl_type);
 }
 
 std::vector<cl::Device> Utils::getAllDevices(){
@@ -139,7 +136,7 @@ void Utils::DeviceInfo(cl::Device device){
     return;
     }
 
-cl::Context Utils::context(){
+cl::Context Utils::setContext(){
     return this->context_<cl::Device>(this->default_device);
 }
 
@@ -155,6 +152,6 @@ cl::Context Utils::context(){
 //     return context;
 // }
 
-cl::Context Utils::context(std::vector<cl::Device> devices){
+cl::Context Utils::setContext(std::vector<cl::Device> devices){
     return this->context_<std::vector<cl::Device>>(devices);
 }

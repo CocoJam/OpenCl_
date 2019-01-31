@@ -4,7 +4,7 @@ int main()
 {
   Utils* u = new Utils("NVIDIA");
   u->DeviceInfo();
-  u->context_();
+  u->setContext();
   delete u;
   return 0;
 }
