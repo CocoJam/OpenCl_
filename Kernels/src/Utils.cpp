@@ -34,7 +34,14 @@ Utils::Utils(std::string prefix_platform){
 }
 
 Utils::~Utils()
-{
+{   
+     cl_int ciErrNum =  clReleaseContext(this->context());
+    if(ciErrNum == CL_SUCCESS){
+        std::cout<< "Context released"<<std::endl;
+    }
+    else{
+        std::cout<< "Context not released"<<std::endl;
+    }
     std::cout<< "Destroy opencl Object"<<std::endl;
 }
 
@@ -73,7 +80,9 @@ void Utils::setDefaultDevice(cl::Device& default_device){
 }
 
 void Utils::getPlateform(){
+
     cl::Platform::get(&this->all_platforms);
+    
     return;
 }
 
@@ -81,6 +90,7 @@ void Utils::GetDevice_(cl::Platform& platform, int cl_type){
     cl::Platform default_platform= platform;
     std::cout << "Using platform: "<<default_platform.getInfo<CL_PLATFORM_NAME>()<<"\n";
     std::vector<cl::Device> all_devices;
+    
     std::cout<< CL_DEVICE_TYPE_ALL<<std::endl;
     cl_type = cl_type == 0? CL_DEVICE_TYPE_ALL: cl_type;
     default_platform.getDevices(cl_type, &all_devices);
@@ -128,3 +138,23 @@ void Utils::DeviceInfo(cl::Device device){
     std::cout << "\t\tMax Alloc Size: " << size/(1024*1024) << " MB" << std::endl;
     return;
     }
+
+cl::Context Utils::context_(){
+    return this->context_<cl::Device>(this->default_device);
+}
+
+// template<class T>
+// cl::Context Utils::context_(T device){
+//     cl::Context context(device, NULL, NULL,NULL, &this->ciErrNum);
+//       if (ciErrNum != CL_SUCCESS)
+//     {
+//         std::cout<<"Error: Failed to create OpenCL context!\n"<<std::endl;
+//         return ciErrNum;
+//     }
+//     this->context = context;
+//     return context;
+// }
+
+cl::Context Utils::context_(std::vector<cl::Device> devices){
+    return this->context_<std::vector<cl::Device>>(devices);
+}

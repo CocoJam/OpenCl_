@@ -19,8 +19,10 @@ private:
     cl::Device default_device;
     bool isGPU = false;
     std::string prefix_platform;
+    cl::Context context; 
     void default_device_(std::string str);
     void GetDevice_(cl::Platform& plateform, int cl_type);
+    cl_int ciErrNum = CL_SUCCESS;
 public:
     Utils();
     Utils(bool gpu);
@@ -34,6 +36,20 @@ public:
     std::vector<cl::Device> getAllDevices();
     void DeviceInfo();
     void DeviceInfo(cl::Device);
+    cl::Context context_();
+    cl::Context context_(std::vector<cl::Device> devices);
+    template<class T>
+    cl::Context context_(T device){
+    cl::Context context(device, NULL, NULL,NULL, &this->ciErrNum);
+      if (ciErrNum != CL_SUCCESS)
+    {
+        std::cout<<"Error: Failed to create OpenCL context!\n"<<std::endl;
+        return ciErrNum;
+    }
+    this->context = context;
+    return context;
+    }
+
     ~Utils();
 };
 #endif
