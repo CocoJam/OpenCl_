@@ -139,7 +139,7 @@ void Utils::DeviceInfo(cl::Device device){
     return;
     }
 
-cl::Context Utils::context_(){
+cl::Context Utils::context(){
     return this->context_<cl::Device>(this->default_device);
 }
 
@@ -155,6 +155,6 @@ cl::Context Utils::context_(){
 //     return context;
 // }
 
-cl::Context Utils::context_(std::vector<cl::Device> devices){
+cl::Context Utils::context(std::vector<cl::Device> devices){
     return this->context_<std::vector<cl::Device>>(devices);
 }
