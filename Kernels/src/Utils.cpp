@@ -53,6 +53,7 @@ void Utils::default_device_(std::string str){
     }
     this->default_device = this->default_device.getInfo<CL_DEVICE_NAME>() == "" ? this->all_devices[0]: this->default_device; 
     std::cout<< "Using device: "<< this->default_device.getInfo<CL_DEVICE_NAME>() << " as default device"<<std::endl;
+
 }
 
 void Utils::setDefaultDevice(std::string str){
@@ -101,3 +102,29 @@ void Utils::GetDevice(cl::Platform& platform, int cl_type){
 std::vector<cl::Device> Utils::getAllDevices(){
     return this->all_devices;
 }
+
+void Utils::DeviceInfo(){
+    this->DeviceInfo(this->default_device);
+    return;
+}
+
+
+void Utils::DeviceInfo(cl::Device device){
+    std::cout<< "CL_DEVICE_TYPE: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
+    std::cout<< "CL_DEVICE_MAX_COMPUTE_UNITS: " <<  device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>() << std::endl;
+    std::cout<< "CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: " <<  device.getInfo<CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
+    std::cout<< "CL_DEVICE_MAX_WORK_GROUP_SIZE: " <<  device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>() << std::endl;
+    std::vector<size_t> d = device.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>(); 
+    std::cout << "\t\tMax Work-group Dims: (";
+        for (std::vector<size_t>::iterator st = d.begin(); st != d.end(); st++)
+          std::cout << *st << " ";
+       std::cout << "\x08)" << std::endl;
+    size_t size;
+    size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
+    std::cout << "\t\tLocal Memory Size: " << size/1024 << " KB" << std::endl;
+    size = device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();
+    std::cout << "\t\tGlobal Memory Size: " << size/(1024*1024) << " MB" << std::endl;
+    size = device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>();
+    std::cout << "\t\tMax Alloc Size: " << size/(1024*1024) << " MB" << std::endl;
+    return;
+    }

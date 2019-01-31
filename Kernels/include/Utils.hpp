@@ -32,6 +32,8 @@ public:
     void setDefaultDevice(std::string str);
     void setDefaultDevice();
     std::vector<cl::Device> getAllDevices();
+    void DeviceInfo();
+    void DeviceInfo(cl::Device);
     ~Utils();
 };
 #endif
