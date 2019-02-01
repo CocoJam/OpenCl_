@@ -22,6 +22,11 @@ namespace {
     virtual void SetUp() {
       utils = new Utils();
     }
+    
+    void SetUp(std::string prefix_) {
+      delete utils;
+      utils = new Utils(prefix_);
+    }
 
     virtual void TearDown() {
       delete utils;
@@ -53,7 +58,26 @@ namespace {
     }
   }
 
-  
+    TEST_F(UtilsTest, Utils_constructor_with_prefix) {
+        SetUp("Intel(R)");
+        for(cl::Platform i : utils->getPlateform()){
+            std::size_t found =  i.getInfo<CL_PLATFORM_NAME>().find("Intel(R)");
+            if (found != std::string::npos){
+              EXPECT_TRUE(true);
+              return;
+            }
+        }
+        FAIL();
+    }
 
-
+    TEST_F(UtilsTest, Utils_set_defaultDevice){
+      utils->setDefaultDevice("GeForce");
+      cl::Device dev = utils->getDefaultDevice();
+       std::size_t found =  dev.getInfo<CL_DEVICE_NAME>().find("GeForce");
+            if (found != std::string::npos){
+              EXPECT_TRUE(true);
+              return;
+            }
+      FAIL();
+    }
 }

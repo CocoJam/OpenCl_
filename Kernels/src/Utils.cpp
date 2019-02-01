@@ -45,7 +45,7 @@ Utils::~Utils()
     std::cout<< "Destroy opencl Object"<<std::endl;
 }
 
-void Utils::default_device_(std::string str){
+cl::Device Utils::default_device_(std::string str){
     for(const cl::Device& i:this->all_devices) {
         std::string device_name = i.getInfo<CL_DEVICE_NAME>();
         std::cout<< "Detected device: "<<i.getInfo<CL_DEVICE_NAME>()<<std::endl;
@@ -54,13 +54,14 @@ void Utils::default_device_(std::string str){
         if(str.size()>=1){
             std::size_t found = device_name.find(str);
              if (found!=std::string::npos){
-            this->default_device = i;
+                this->default_device = i;
+                break;
             }
         }
     }
     this->default_device = this->default_device.getInfo<CL_DEVICE_NAME>() == "" ? this->all_devices[0]: this->default_device; 
     std::cout<< "Using device: "<< this->default_device.getInfo<CL_DEVICE_NAME>() << " as default device"<<std::endl;
-
+    return  this->default_device;
 }
 
 void Utils::setDefaultDevice(std::string str){
@@ -77,6 +78,13 @@ void Utils::setDefaultDevice(){
 void Utils::setDefaultDevice(cl::Device& default_device){
     this->default_device = default_device;
     return;
+}
+
+cl::Device Utils::getDefaultDevice(){
+    if(&this->default_device == NULL){
+      setDefaultDevice();
+    }
+    return this->default_device;
 }
 
 std::vector<cl::Platform> Utils::getPlateform(){

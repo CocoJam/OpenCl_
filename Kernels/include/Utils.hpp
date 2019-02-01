@@ -10,6 +10,9 @@
 #include<iostream>
 #include <algorithm>
 #include <string>
+#include <functional>
+
+
 /*
 Utility Class to obtain opencl Platforms and devices avaible.
 
@@ -28,8 +31,8 @@ private:
     cl::Device default_device;
     bool isGPU = false;
     std::string prefix_platform;
-    cl::Context context; 
-    void default_device_(std::string str);
+    cl::Context context;
+    cl::Device default_device_(std::string str);
     std::vector<cl::Device> GetDevice_(cl::Platform& plateform, int cl_type);
     template<class T>
     cl::Context context_(T device){
@@ -69,6 +72,7 @@ public:
     std::vector<cl::Device> GetDevice(cl::Platform& plateform);
     std::vector<cl::Device> GetDevice(cl::Platform& plateform, int cl_type);
     void setDefaultDevice(cl::Device& default_device);
+    cl::Device getDefaultDevice();
     void setDefaultDevice(std::string str);
     void setDefaultDevice();
     std::vector<cl::Device> getAllDevices();
