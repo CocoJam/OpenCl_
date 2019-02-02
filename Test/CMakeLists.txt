@@ -3,6 +3,10 @@ project(unit_test)
 
 enable_testing()
 
+# FIND_PACKAGE(OpenCL REQUIRED)
+# INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIR})
+# link_directories(${OpenCL_LIBRARY})
+
 file(GLOB_RECURSE unit_general_test_files ${CMAKE_CURRENT_SOURCE_DIR}/General/*.cpp)
 file(GLOB_RECURSE unit_data_structure_test_files ${CMAKE_CURRENT_SOURCE_DIR}/Data_structure/*.cpp)
 
@@ -12,7 +16,7 @@ function(test_generation file_item file_name type_of_library GTEST GMAIN)
     
 message(STATUS ${file_item})
 get_filename_component(MYFILE_WITHOUT_EXT ${file_item} NAME_WE)
-include(GoogleTest)
+# include(GoogleTest)
 
 message(STATUS ${MYFILE_WITHOUT_EXT})
 
@@ -23,11 +27,9 @@ target_link_libraries(
     ${type_of_library}
     ${GTEST}
     ${GMAIN}
+    # OpenCL::OpenCL
 )
 
-# gtest_add_tests(TARGET ${MYFILE_WITHOUT_EXT} TEST_PREFIX old:)
-# gtest_discover_tests(${MYFILE_WITHOUT_EXT} TEST_PREFIX new:)
-add_test(AllTest ${MYFILE_WITHOUT_EXT})
 
 endfunction(test_generation)
 

@@ -60,6 +60,7 @@ namespace {
 
     TEST_F(UtilsTest, Utils_constructor_with_prefix) {
         SetUp("Intel(R)");
+        bool trigger = false;
         for(cl::Platform i : utils->getPlateform()){
             std::size_t found =  i.getInfo<CL_PLATFORM_NAME>().find("Intel(R)");
             if (found != std::string::npos){
@@ -67,11 +68,12 @@ namespace {
               return;
             }
         }
-        FAIL();
+      FAIL();
     }
 
     TEST_F(UtilsTest, Utils_set_defaultDevice){
       utils->setDefaultDevice("GeForce");
+              bool trigger = false;
       cl::Device dev = utils->getDefaultDevice();
        std::size_t found =  dev.getInfo<CL_DEVICE_NAME>().find("GeForce");
             if (found != std::string::npos){
