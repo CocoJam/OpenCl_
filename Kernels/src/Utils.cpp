@@ -22,7 +22,7 @@ Utils::Utils(bool gpu){
 }
 
 Utils::Utils(std::string prefix_platform){
-    std::cout<< "prefix platform: "<< prefix_platform<<std::endl;
+    // std::cout<< "prefix platform: "<< prefix_platform<<std::endl;
     getPlateform();
     for (cl::Platform& i : this->all_platforms) {
         std::size_t found =  i.getInfo<CL_PLATFORM_NAME>().find(prefix_platform);
@@ -48,7 +48,7 @@ Utils::~Utils()
 cl::Device Utils::default_device_(std::string str){
     for(const cl::Device& i:this->all_devices) {
         std::string device_name = i.getInfo<CL_DEVICE_NAME>();
-        std::cout<< "Detected device: "<<i.getInfo<CL_DEVICE_NAME>()<<std::endl;
+        // std::cout<< "Detected device: "<<i.getInfo<CL_DEVICE_NAME>()<<std::endl;
         std::string::const_iterator it;
         it = search(device_name.begin(), device_name.end(), str.begin(), str.end());
         if(str.size()>=1){
@@ -60,7 +60,7 @@ cl::Device Utils::default_device_(std::string str){
         }
     }
     this->default_device = this->default_device.getInfo<CL_DEVICE_NAME>() == "" ? this->all_devices[0]: this->default_device; 
-    std::cout<< "Using device: "<< this->default_device.getInfo<CL_DEVICE_NAME>() << " as default device"<<std::endl;
+    // std::cout<< "Using device: "<< this->default_device.getInfo<CL_DEVICE_NAME>() << " as default device"<<std::endl;
     return  this->default_device;
 }
 

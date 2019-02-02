@@ -12,6 +12,7 @@ function(test_generation file_item file_name type_of_library GTEST GMAIN)
     
 message(STATUS ${file_item})
 get_filename_component(MYFILE_WITHOUT_EXT ${file_item} NAME_WE)
+include(GoogleTest)
 
 message(STATUS ${MYFILE_WITHOUT_EXT})
 
@@ -23,6 +24,10 @@ target_link_libraries(
     ${GTEST}
     ${GMAIN}
 )
+
+# gtest_add_tests(TARGET ${MYFILE_WITHOUT_EXT} TEST_PREFIX old:)
+# gtest_discover_tests(${MYFILE_WITHOUT_EXT} TEST_PREFIX new:)
+add_test(AllTest ${MYFILE_WITHOUT_EXT})
 
 endfunction(test_generation)
 
@@ -37,3 +42,4 @@ endforeach()
 foreach(item ${unit_OpenCL_test_files})
 test_generation(${item} ${item} kernels  GTest::GTest  GTest::Main)
 endforeach()
+
