@@ -53,9 +53,19 @@ namespace {
         alterPlatform(i).getDevices(CL_DEVICE_TYPE_CPU, &all_devices);
         std::vector<cl::Device> platform_devices = platform->GetDevice();
         for(int j =0; j< all_devices.size(); j++){
+          /*
+        ******************************
+        Test fail:
+           all_devices[j].getInfo<0x102B>()
+           Which is: "Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz\0"
+           platform_devices[j].getInfo<0x102B>()
+           Which is: "Intel(R) HD Graphics 630\0"
+           ********************************
+          */
           EXPECT_EQ(all_devices[j].getInfo<CL_DEVICE_NAME>(),platform_devices[j].getInfo<CL_DEVICE_NAME>());
         }
       }
+      EXPECT_TRUE(true);
   }
 
      TEST_F(PlatformTest, Platform_GetDevice_GPU) {
@@ -79,9 +89,9 @@ TEST_F(PlatformTest, Platform_GetDevice_ALL) {
         }
       }
   }
-  //   TEST_F(PlatformTest, Platform_GetDevice_GPU) {
-   
-  // }
+    // TEST_F(PlatformTest, Platform_Set_Context) {
+    //   cl::Context con = platform.setContext(platform);
+    // }
   //   TEST_F(PlatformTest, Platform_Set_Context) {
     
   // }

@@ -15,7 +15,8 @@ int main()
   std::vector<cl::Platform> vec;
   cl::Platform::get(&vec);
   Util::Platform<cl::Device> plat(vec[0]);
- 
+  plat.setContext();
+  plat.setQuene();
   cl::Device* d = new cl::Device(plat.GetDevice()[0]);
   std::cout <<"Device info: " << d->getInfo<CL_DEVICE_NAME>()<<std::endl;
   return 0;

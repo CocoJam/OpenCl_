@@ -1,6 +1,10 @@
 #include "Platform.hpp"
-
-
+#include <string>
+#include<iostream>
+#include <fstream>
+#include<unordered_map>
+#include <tuple>
+#define MAX_SOURCE_SIZE (0x100000)	
 namespace Util{
 
 
@@ -14,17 +18,30 @@ Platform<D>::Platform(cl::Platform platform){
 template<class D>
 Platform<D>::~Platform()
 {   
-     cl_int ciErrNum =  clReleaseContext(this->context());
-    if(ciErrNum == CL_SUCCESS){
-        std::cout<< "Context released"<<std::endl;
+    release_(clReleaseContext, this->context, "Context");
+    release_(clReleaseCommandQueue, this->queue, "Queue");
+
+    std::cout<< "Destroy OpenCL::Platform Object"<<std::endl;
+}
+
+template<class D>
+cl_int Platform<D>::release_(auto (*func) (auto), auto item, std::string str){
+    auto item_ptr = item();
+    if(&item == NULL){
+        std::cout<< str << " is NULL"<< std::endl;
+        return CL_INVALID_EVENT;
     }
-    else if(&this->context == NULL){
-            std::cout<< "Context not released"<<std::endl;
+    cl_int ciErrNum = func(item_ptr);
+  if(ciErrNum == CL_SUCCESS){
+        std::cout<< str <<" released"<<std::endl;
+    }
+    else if(&item == NULL){
+            std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
     }
     else{
-            std::cout<< "Context not released"<<std::endl;        
-        }
-    std::cout<< "Destroy OpenCL::Platform Object"<<std::endl;
+            std::cout<< str <<" not released"<<std::endl;        
+    }
+    return ciErrNum;
 }
 
 template<class D>
@@ -95,6 +112,20 @@ cl::Context Platform<D>::setContext(D device){
     return this->context_<D>(device);
 }
 
+template<class D>
+cl::Context Platform<D>::setContext(){
+    if(this->all_devices.size() < 1){
+        GetDevice_(this->platform, 0);
+    }
+    /*
+    int i = 
+    while(&this->all_Devices.size() <1){
+        GetDevice_(this->platform, i);
+    }
+    */
+    return this->context_<D>(all_devices[0]);
+}
+
 // template<class D>
 // cl::Context Platform<D>::setContext(std::vector<D> devices){
 //     return this->context_<std::vector<D>>(devices);
@@ -104,14 +135,88 @@ template<class D>
     template<class T>
     cl::Context Platform<D>::context_(T device){
         T dev = device;
-        cl::Context context(dev, NULL, NULL,NULL, NULL);
-            if (ciErrNum != CL_SUCCESS){
+        cl_int err = CL_SUCCESS;
+        cl_int* err_ptr = &err;
+        cl::Context context(dev, NULL, NULL,NULL,err_ptr);
+            if (ciErrNum != err){
                 std::cout<<"Error: Failed to create OpenCL context!\n"<<std::endl;
                 return ciErrNum;
             }
         this->context = context;
         return context;
     }
+
+template<class D>
+cl::CommandQueue Platform<D>::setQuene(){
+    if(&context == NULL){
+        setContext();
+    }
+
+    cl_int err = CL_SUCCESS;
+    cl_int* err_ptr = &err;
+
+    cl::CommandQueue q(this->context,0, err_ptr);
+         if (ciErrNum != err){
+                std::cout<<"Error: Failed to create OpenCL Command Queue!\n"<<std::endl;
+                return ciErrNum;
+            }
+        this->queue = q;
+        return q;
+}
+//
+template<class D>
+cl::Program Platform<D>::program_quene(std::string filename,bool buildKernel=true){
+    return program_quene(filename.c_str(),filename, buildKernel);
+}
+
+template<class D>
+cl::Program Platform<D>::program_quene(std::string filename, std::string methodname,bool buildKernel=true){
+    return program_quene(filename.c_str(), methodname,buildKernel);
+}
+
+//
+// template<class D>
+// cl_program Platform<D>::program_quene(char[] filename){
+//     char* file_name_ptr = &filename;
+//     return program_quene(file_name_ptr);
+// }
+
+template<class D>
+cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, bool buildKernel=true){
+    std::ifstream file(fileName);
+    std::string str = "";
+    if (file.is_open()) {
+        std::string line;
+        while (getline(file, line)) {
+            str+= line.c_str();
+        }
+        file.close();
+    }
+    cl::Program::Sources sources;
+    sources.push_back({str.c_str(),str.length()});
+    if(&this->context == NULL){
+        setContext();
+    }
+    cl_int err = CL_SUCCESS;
+    cl_int* err_ptr = &err;
+    cl::Program program(this->context,sources, err_ptr);
+
+    //
+    if(err_ptr!=CL_SUCCESS){
+        std::cout<<" Error building: "<< fileName<<"\n";
+        exit(1);
+    }
+    
+    if(buildKernel){
+        cl::Kernel kernel=cl::Kernel(program,methodName);
+        this->ProgramMap[methodName]=std::make_tuple(program, kernel);
+    }else{
+        this->ProgramMap[methodName]=std::make_tuple(program, cl::kernel());        
+    }
+    return program;
+}
+
+
 
 template class Platform<cl::Device>;
 template class Platform<Device>;
