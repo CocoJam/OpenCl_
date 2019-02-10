@@ -164,13 +164,17 @@ cl::CommandQueue Platform<D>::setQuene(){
         return q;
 }
 //
+
+
 template<class D>
-cl::Program Platform<D>::program_quene(std::string filename,bool buildKernel=true){
+// template<bool buildKernel=true>
+cl::Program Platform<D>::program_quene(std::string filename,bool buildKernel){
     return program_quene(filename.c_str(),filename, buildKernel);
 }
 
 template<class D>
-cl::Program Platform<D>::program_quene(std::string filename, std::string methodname,bool buildKernel=true){
+// template<bool buildKernel=true>
+cl::Program Platform<D>::program_quene(std::string filename, std::string methodname,bool buildKernel){
     return program_quene(filename.c_str(), methodname,buildKernel);
 }
 
@@ -182,7 +186,7 @@ cl::Program Platform<D>::program_quene(std::string filename, std::string methodn
 // }
 
 template<class D>
-cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, bool buildKernel=true){
+cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, bool buildKernel){
     std::ifstream file(fileName);
     std::string str = "";
     if (file.is_open()) {
@@ -206,13 +210,15 @@ cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, b
         std::cout<<" Error building: "<< fileName<<"\n";
         exit(1);
     }
-    
+    cl::Kernel kernel;
     if(buildKernel){
-        cl::Kernel kernel=cl::Kernel(program,methodName);
-        this->ProgramMap[methodName]=std::make_tuple(program, kernel);
+        const char * c = methodName.c_str();
+        kernel= cl::Kernel(program,c);
     }else{
-        this->ProgramMap[methodName]=std::make_tuple(program, cl::kernel());        
+        kernel= cl::Kernel();
     }
+        this->ProgramMap[methodName]=std::make_tuple(program, kernel);        
+
     return program;
 }
 
