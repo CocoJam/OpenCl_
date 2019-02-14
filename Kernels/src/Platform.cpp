@@ -4,6 +4,17 @@
 #include <fstream>
 #include<unordered_map>
 #include <tuple>
+// #include <windows.h>
+#ifdef _WIN32
+#include <direct.h>
+#define cwd _getcwd
+#define cd _chdir
+#else
+#include "unistd.h"
+#define cwd getcwd
+#define cd chdir
+#endif
+
 #define MAX_SOURCE_SIZE (0x100000)	
 namespace Util{
 
@@ -20,7 +31,10 @@ Platform<D>::~Platform()
 {   
     release_(clReleaseContext, this->context, "Context");
     release_(clReleaseCommandQueue, this->queue, "Queue");
-
+    for(auto& it:ProgramMap){
+        release_(clReleaseKernel, std::get<1>(it.second), it.first);
+        release_(clReleaseProgram, std::get<0>(it.second), it.first);
+    }
     std::cout<< "Destroy OpenCL::Platform Object"<<std::endl;
 }
 
@@ -123,7 +137,7 @@ cl::Context Platform<D>::setContext(){
         GetDevice_(this->platform, i);
     }
     */
-    return this->context_<D>(all_devices[0]);
+    return this->context_<std::vector<D>>(all_devices);
 }
 
 // template<class D>
@@ -149,7 +163,7 @@ template<class D>
 template<class D>
 cl::CommandQueue Platform<D>::setQuene(){
     if(&context == NULL){
-        setContext();
+        this->setContext();
     }
 
     cl_int err = CL_SUCCESS;
@@ -168,15 +182,16 @@ cl::CommandQueue Platform<D>::setQuene(){
 
 template<class D>
 // template<bool buildKernel=true>
-cl::Program Platform<D>::program_quene(std::string filename,bool buildKernel){
-    return program_quene(filename.c_str(),filename, buildKernel);
+cl::Program Platform<D>::program_quene(const char * filename,bool buildKernel){
+    return this->program_quene(filename,filename, buildKernel);
 }
 
-template<class D>
-// template<bool buildKernel=true>
-cl::Program Platform<D>::program_quene(std::string filename, std::string methodname,bool buildKernel){
-    return program_quene(filename.c_str(), methodname,buildKernel);
-}
+// template<class D>
+// // template<bool buildKernel=true>
+// cl::Program Platform<D>::program_quene(std::string filename, std::string methodname,bool buildKernel){
+//     return this->program_quene(filename.c_str(), methodname.c_str(),buildKernel);
+// }
+
 
 //
 // template<class D>
@@ -186,7 +201,8 @@ cl::Program Platform<D>::program_quene(std::string filename, std::string methodn
 // }
 
 template<class D>
-cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, bool buildKernel){
+cl::Program Platform<D>::program_quene(const char * fileName, const char * methodName, bool buildKernel){
+    
     std::ifstream file(fileName);
     std::string str = "";
     if (file.is_open()) {
@@ -195,6 +211,10 @@ cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, b
             str+= line.c_str();
         }
         file.close();
+    }else{
+        char buf[4096];
+        std::cout  << "CWD: " << cwd(buf, sizeof buf) << std::endl;
+        std::cout<< fileName << " is not found."<<std::endl;
     }
     cl::Program::Sources sources;
     sources.push_back({str.c_str(),str.length()});
@@ -203,27 +223,35 @@ cl::Program Platform<D>::program_quene(char* fileName, std::string methodName, b
     }
     cl_int err = CL_SUCCESS;
     cl_int* err_ptr = &err;
-    cl::Program program(this->context,sources, err_ptr);
-
-    //
-    if(err_ptr!=CL_SUCCESS){
-        std::cout<<" Error building: "<< fileName<<"\n";
+    // cl::Program program(this->context,sources, err_ptr);
+    cl::Program program(this->context,sources);
+    if(program.build(this->all_devices)!=CL_SUCCESS){
+        std::cout<<" Error building: "<<program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(this->all_devices[0])<<"\n";
         exit(1);
     }
     cl::Kernel kernel;
     if(buildKernel){
-        const char * c = methodName.c_str();
-        kernel= cl::Kernel(program,c);
+        // const char * c = methodName.c_str();
+        kernel= cl::Kernel(program,methodName);
     }else{
         kernel= cl::Kernel();
     }
-        this->ProgramMap[methodName]=std::make_tuple(program, kernel);        
-
+    this->ProgramMap[methodName]=std::make_tuple(program, kernel);        
+    std::cout<< "Quened: "<< methodName<<std::endl;
     return program;
+}
+
+template<class D>
+std::unordered_map<std::string, std::tuple<cl::Program,cl::Kernel>> Platform<D>::getProgramMap(){
+    if(&ProgramMap == NULL){
+           throw std::invalid_argument("Platform doesn't have Program Map");
+    }else{
+        return this->ProgramMap;
+    }
 }
 
 
 
 template class Platform<cl::Device>;
-template class Platform<Device>;
+// template class Platform<Device>;
 }

@@ -7,9 +7,12 @@ project(project_GPU)
 # add_subdirectory(General)
 add_subdirectory(Kernels)
 add_executable(main main.cpp)
-FIND_PACKAGE(OpenCL REQUIRED)
-INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIR})
-link_directories(${OpenCL_LIBRARY})
+# FIND_PACKAGE(OpenCL 2.0 REQUIRED)
+include_directories(${INTELOCLSDKROOT}/include)
+
+file(GLOB_RECURSE HEADER_FILES_  ${CMAKE_CURRENT_SOURCE_DIR}/CL_2_0/CL)
+INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIR} ${HEADER_FILES_})
+link_directories(${INTELOCLSDKROOT}/lib/x86)
 
 # set(Boost_USE_MULTITHREADED      ON)
 # set(Boost_INCLUDE_DIR C:/Users/james/Desktop/boost_1_69_0)
@@ -39,10 +42,10 @@ target_link_libraries(
     kernels
     # ${Boost_LIBRARIES}
     # Boost::filesystem
-    OpenCL::OpenCL
+    # OpenCL::OpenCL
 )
 
-add_dependencies(main OpenCL::OpenCL)
+# add_dependencies(main OpenCL::OpenCL)
 # add_dependencies(main data_structure)
 add_dependencies(main kernels)
 # add_subdirectory(3rd_party/google-test)

@@ -69,11 +69,12 @@ context_ is a private method for applying context according to given cl::Device/
         cl::Context setContext(std::vector<D> device);
         cl::CommandQueue setQuene();
         cl::CommandQueue setQuene(cl::Context);
-        cl::Program program_quene(char* filename, std::string methodname,bool buildKernel = true);
-        cl::Program program_quene(std::string filename,bool buildKernel = true);
-        // cl::Program program_quene(std::string filename, bool buildKernel=true);
-        cl::Program program_quene(std::string filename, std::string methodname,bool buildKernel = true);
+        // cl::Program program_quene(const char* filename, std::string methodname, bool buildKernel = true);
+        // cl::Program program_quene(const char* filename, const char* methodname,bool buildKernel = true);
+        cl::Program program_quene(const char * filename, bool buildKernel=true);
+        cl::Program program_quene(const char * filename, const char *  methodname, bool buildKernel = true);
         // cl_program program_quene(char[] filename);
+        std::unordered_map<std::string, std::tuple<cl::Program,cl::Kernel>> getProgramMap();
     };
 
 
