@@ -47,7 +47,8 @@ context_ is a private method for applying context according to given cl::Device/
         std::vector<D> GetDevice_(cl::Platform& plateform, int cl_type);
         template<class T>
         cl::Context context_(T device);
-        cl_int release_(auto (*func) (auto), auto item, std::string str);
+        template<class T, class T2>
+        cl_int release_(cl_int (*func) (T), T2 item, std::string str);
         
 
 

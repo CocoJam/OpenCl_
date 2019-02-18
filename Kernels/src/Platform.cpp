@@ -29,34 +29,35 @@ Platform<D>::Platform(cl::Platform platform){
 template<class D>
 Platform<D>::~Platform()
 {   
-    release_(clReleaseContext, this->context, "Context");
-    release_(clReleaseCommandQueue, this->queue, "Queue");
+    release_<cl_context, cl::Context>(clReleaseContext, this->context, "Context");
+    release_< cl_command_queue ,cl::CommandQueue>(clReleaseCommandQueue, this->queue, "Queue");
     for(auto& it:ProgramMap){
-        release_(clReleaseKernel, std::get<1>(it.second), it.first);
-        release_(clReleaseProgram, std::get<0>(it.second), it.first);
+        release_<cl_kernel , cl::Kernel>(clReleaseKernel, std::get<1>(it.second), it.first);
+        release_<cl_program , cl::Program>(clReleaseProgram, std::get<0>(it.second), it.first);
     }
     std::cout<< "Destroy OpenCL::Platform Object"<<std::endl;
 }
 
 template<class D>
-cl_int Platform<D>::release_(auto (*func) (auto), auto item, std::string str){
-    auto item_ptr = item();
-    if(&item == NULL){
-        std::cout<< str << " is NULL"<< std::endl;
-        return CL_INVALID_EVENT;
+    template<class T, class T2>
+    cl_int Platform<D>::release_(cl_int (*func) (T), T2 item, std::string str){
+        auto item_ptr = item();
+        if(&item == NULL){
+            std::cout<< str << " is NULL"<< std::endl;
+            return CL_INVALID_EVENT;
+        }
+        cl_int ciErrNum = func(item_ptr);
+    if(ciErrNum == CL_SUCCESS){
+            std::cout<< str <<" released"<<std::endl;
+        }
+        else if(&item == NULL){
+                std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
+        }
+        else{
+                std::cout<< str <<" not released"<<std::endl;        
+        }
+        return ciErrNum;
     }
-    cl_int ciErrNum = func(item_ptr);
-  if(ciErrNum == CL_SUCCESS){
-        std::cout<< str <<" released"<<std::endl;
-    }
-    else if(&item == NULL){
-            std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
-    }
-    else{
-            std::cout<< str <<" not released"<<std::endl;        
-    }
-    return ciErrNum;
-}
 
 template<class D>
 std::vector<D> Platform<D>::GetDevice_(cl::Platform& platform, int cl_type){

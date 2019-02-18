@@ -17,7 +17,7 @@ int main()
   Util::Platform<cl::Device> plat(vec[0]);
   plat.setContext();
   plat.setQuene();
-  cl::Program p = plat.program_quene("../Kernels/Kernels/add.cl", "add_");
+  // cl::Program p = plat.program_quene("../Kernels/Kernels/add.cl", "add_");
   // std::cout<<p.getInfo()<< std::endl;
   
   std::unordered_map<std::string, std::tuple<cl::Program,cl::Kernel>> programs = plat.getProgramMap();

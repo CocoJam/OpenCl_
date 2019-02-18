@@ -3,13 +3,21 @@ set (CMAKE_CXX_STANDARD 17)
 project(Intel_OpenCL)
 
 message(STATUS ${INTELOCLSDKROOT})
-include_directories("C:\\Intel\\OpenCL\\sdk\\include")
-link_directories("C:\\Intel\\OpenCL\\sdk\\lib\\x64")
+# include_directories("C:\\Intel\\OpenCL\\sdk\\include")
+# link_directories("C:\\Intel\\OpenCL\\sdk\\lib\\x64")
 file(GLOB_RECURSE HEADER_FILES_  ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB_RECURSE LIB_SOURCE_FILES_  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-add_library(source_file ${HEADER_FILES_} ${LIB_SOURCE_FILES_})
-target_link_libraries(
-    source_file
-    OpenCL.lib
+add_library(Intel_OpenCL ${HEADER_FILES_} ${LIB_SOURCE_FILES_})
+
+# target_link_libraries(
+#     Intel_OpenCL
+#     OpenCL.lib
+# )
+
+
+target_include_directories(
+    Intel_OpenCL
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
