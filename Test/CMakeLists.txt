@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.12)
 project(unit_test)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1")
+include(ExternalProject)
+ExternalProject_Add(gtest
+  URL https://github.com/google/googletest/archive/release-1.8.0.zip
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
+  INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property(gtest source_dir binary_dir)
+include_directories(${source_dir}/include)
 enable_testing()
 
 # FIND_PACKAGE(OpenCL REQUIRED)
@@ -21,15 +30,16 @@ get_filename_component(MYFILE_WITHOUT_EXT ${file_item} NAME_WE)
 message(STATUS ${MYFILE_WITHOUT_EXT})
 
 add_executable(${MYFILE_WITHOUT_EXT} ${file_item})
-
+add_dependencies(${MYFILE_WITHOUT_EXT} gtest)
 target_link_libraries(
     ${MYFILE_WITHOUT_EXT} 
     ${type_of_library}
-    ${GTEST}
-    ${GMAIN}
+    ${binary_dir}/libgtest.a
+    ${binary_dir}/libgtest_main.a
     # OpenCL::OpenCL
 )
-
+add_test(NAME     ${MYFILE_WITHOUT_EXT}  
+         COMMAND  ${MYFILE_WITHOUT_EXT} )
 
 endfunction(test_generation)
 

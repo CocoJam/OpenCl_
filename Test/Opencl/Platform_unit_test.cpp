@@ -1,3 +1,4 @@
+#pragma warning(disable:2220)  
 #include <Platform.hpp>
 
 #ifdef __APPLE__
@@ -6,7 +7,6 @@
 #include <CL/cl.hpp>
 #endif
 #include <gtest/gtest.h>
-
 namespace {
   class PlatformTest : public ::testing::Test {
 

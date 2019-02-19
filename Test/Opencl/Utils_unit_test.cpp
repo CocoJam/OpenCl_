@@ -1,3 +1,4 @@
+#pragma warning(disable:2220)  
 #include <string>
 #include "Utils.hpp"
 #ifdef __APPLE__
