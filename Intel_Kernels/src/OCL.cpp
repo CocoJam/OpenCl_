@@ -1,5 +1,7 @@
 #include "OCL.h"
-
+#define p(x)\
+    std::cout<<x<<std::endl;
+         
 OCL::OCL(): 
         context(NULL),
         // device(std::vector<cl_device_id>),
@@ -9,7 +11,7 @@ OCL::OCL():
         platformVersion(OPENCL_VERSION_1_2),
         deviceVersion(OPENCL_VERSION_1_2),
         compilerVersion(OPENCL_VERSION_1_2){
-
+            setup();
         };
         // memory_buffer(std::vector<cl_mem>)
 OCL::~OCL(){
@@ -20,12 +22,24 @@ OCL::~OCL(){
 }
 
 void OCL::setup(){
-    cl_platform_id* platform_ptr = this->preferred_platform();
-    this->device = platform_device(platform_ptr, CL_DEVICE_TYPE_ALL);
-    this->context = context_with_properties(&this->device[0],platform_ptr,NULL, this->device.size());
+    try{
+    cl_platform_id platform_ptr = preferred_platform("Intel");
+    // cl_int err = CL_SUCCESS;
+    // size_t stringLength = 0;
+    // err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, 0, NULL, &stringLength);
+    // std::vector<char> platformName(stringLength);
+    // err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, stringLength, &platformName[0], NULL);
+    // std::string str(platformName.begin(),platformName.end());
+    cl_uint num =  num_of_platform_device(platform_ptr, CL_DEVICE_TYPE_GPU);
+    this->device = platform_device(platform_ptr, CL_DEVICE_TYPE_GPU);
+    this->context = context_with_properties(this->device[0],platform_ptr,NULL, this->device.size());
     std::vector<cl_command_queue> queue(device.size());
     for(int i=0;i<queue.size();i++){
-        queue[i] = commandQuene(&device[i],context);
+        queue[i] = commandQuene(device[i],context);
+        }
+    }
+    catch(std::invalid_argument& e){
+        std::cout<< e.what()<<std::endl;
     }
 }
 
@@ -44,24 +58,24 @@ void OCL::release_(cl_int (*func) (T), std::vector<T> item, std::string str){
 template<class T>
 cl_int OCL::release_(cl_int (*func) (T), T item, std::string str){
     auto item_ptr = item;
-    if(&item == NULL){
-        std::cout<< str << " is NULL"<< std::endl;
-        return CL_INVALID_EVENT;
-    }
-    cl_int ciErrNum = func(item_ptr);
-  if(ciErrNum == CL_SUCCESS){
-        std::cout<< str <<" released"<<std::endl;
-    }
-    else if(&item == NULL){
-            std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
-    }
-    else{
-            std::cout<< str <<" not released"<<std::endl;        
-    }
-    return ciErrNum;
+   if(&item == NULL){
+            std::cout<< str << " is NULL"<< std::endl;
+            return CL_INVALID_EVENT;
+        }
+        cl_int ciErrNum = func(item_ptr);
+    if(ciErrNum == CL_SUCCESS){
+            std::cout<< str <<" released"<<std::endl;
+        }
+        else if(&item == NULL){
+                std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
+        }
+        else{
+                std::cout<< str <<" not released"<<std::endl;        
+        }
+        return ciErrNum;
 }
 
-cl_platform_id* OCL::preferred_platform(const char* preffered_platform){
+cl_platform_id OCL::preferred_platform(const char* preffered_platform){
     cl_uint numPlatforms = 0;
     cl_int err = CL_SUCCESS;
     size_t stringLength = 0;
@@ -75,7 +89,7 @@ cl_platform_id* OCL::preferred_platform(const char* preffered_platform){
         throw  std::invalid_argument("less than 1 number of platform");        
         return NULL;
     }
-    std::cout<<"Number of platform avalible: "<< numPlatforms<<std::endl;
+    
     std::vector<cl_platform_id> platforms(numPlatforms);
     
      if(preffered_platform != NULL){
@@ -89,29 +103,32 @@ cl_platform_id* OCL::preferred_platform(const char* preffered_platform){
                     return NULL;
                 }
                 if (strstr(&platformName[0], preffered_platform) != 0)
-                {
-                    return &platforms[i];
+                {   
+                    std::string str(platformName.begin(),platformName.end());
+                    return platforms[i];
                 }
         }
     }else{
-        return platform_to_vec(&platforms[0],numPlatforms);
+        platform_to_vec(&platforms[0],numPlatforms);
+        return platforms[0];
     }
 }
 
-cl_platform_id* OCL::platform_to_vec(cl_platform_id* platform_vector_id, cl_uint numPlatforms){
+void OCL::platform_to_vec(cl_platform_id* platform_vector_id, cl_uint numPlatforms){
     cl_int err = CL_SUCCESS;
     err = clGetPlatformIDs(numPlatforms, platform_vector_id, NULL);
          if (CL_SUCCESS != err)
-        {
+        {   
             throw  std::invalid_argument("get clGetPlatformID() not functioning of: ");        
-            return NULL;
+            // return NULL;
         }
-    return platform_vector_id;
+        
+    // return platform_vector_id;
 }
 
-std::vector<cl_device_id> OCL::platform_device(cl_platform_id* platform_id,cl_device_type deviceType, cl_uint numDevices){
+std::vector<cl_device_id> OCL::platform_device(cl_platform_id platform_id,cl_device_type deviceType, cl_uint numDevices){
     if(numDevices <1){
-       cl_uint numDevices  = num_of_platform_device(platform_id,deviceType);
+       numDevices  = num_of_platform_device(platform_id,deviceType);
         if(numDevices <1){
             throw std::invalid_argument("Less than 1 number of Devices");
         }
@@ -125,37 +142,47 @@ std::vector<cl_device_id> OCL::platform_device(cl_platform_id* platform_id,cl_de
     return device_to_vector;
 }
 
-cl_uint OCL::num_of_platform_device(cl_platform_id* platform_id, cl_device_type deviceType){
+cl_uint OCL::num_of_platform_device(cl_platform_id platform_id, cl_device_type deviceType){
     cl_uint num_of_devices = 0;
-    cl_int err = clGetDeviceIDs(*platform_id, deviceType,0,0,&num_of_devices);
+    
+    cl_int err = CL_SUCCESS;
+    size_t stringLength = 0;
+    err = clGetPlatformInfo(platform_id, CL_PLATFORM_NAME, 0, NULL, &stringLength);
+    std::vector<char> platformName(stringLength);
+    err = clGetPlatformInfo(platform_id, CL_PLATFORM_NAME, stringLength, &platformName[0], NULL);
+    std::string str(platformName.begin(),platformName.end());
+    
+    err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU,0,0,&num_of_devices);
+    
+    
     if(err != CL_SUCCESS){
         throw std::invalid_argument("can not access number of devices");
     }
     return num_of_devices;
 }
 
-cl_device_id* OCL::device_to_vec( cl_platform_id* platform_vector_id, cl_device_id* device_vector_id, cl_device_type deviceType, cl_uint numDevices){
+void OCL::device_to_vec( cl_platform_id platform_vector_id, cl_device_id* device_vector_id, cl_device_type deviceType, cl_uint numDevices){
     cl_int err = CL_SUCCESS;
-    err = clGetDeviceIDs(*platform_vector_id, deviceType, 0, NULL, NULL);
+    err = clGetDeviceIDs(platform_vector_id, deviceType, numDevices, device_vector_id, NULL);
         if (CL_SUCCESS != err)
         {
             throw  std::invalid_argument("get clGetDeviceIDs() not functioning and device");        
-            return NULL;
+            // return NULL;
         }
-    return device_vector_id;
+    // return device_vector_id;
 }
 
-cl_context OCL::context_with_properties(cl_device_id* device_vector_id, cl_platform_id* platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices){
+cl_context OCL::context_with_properties(cl_device_id device_vector_id, cl_platform_id platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices){
     cl_int err = CL_SUCCESS;
     if(numdevices == 0){
         throw std::invalid_argument("Lack of devices for create context");
         return NULL;
     }
     if(contextProperties == NULL){
-       cl_context_properties contextProperties[]={CL_CONTEXT_PLATFORM, (cl_context_properties)*platform_vector_id, 0};
+       cl_context_properties contextProperties[]={CL_CONTEXT_PLATFORM, (cl_context_properties)platform_vector_id, 0};
     }
 
-    this->context = clCreateContext(&contextProperties[0], numdevices, device_vector_id, 0, 0, &err);
+    this->context = clCreateContext(&contextProperties[0], numdevices, &device_vector_id, 0, 0, &err);
      if ((CL_SUCCESS != err) || (NULL == this->context))
     {
         throw  std::invalid_argument("get clCreateContextFromType() not within this plafrom");
@@ -164,10 +191,10 @@ cl_context OCL::context_with_properties(cl_device_id* device_vector_id, cl_platf
     return this->context; 
 }
 
-cl_context OCL::context_with_properties(cl_platform_id* platform_vector_id ,cl_context_properties contextProperties[],cl_device_type deviceType){
+cl_context OCL::context_with_properties(cl_platform_id platform_vector_id ,cl_context_properties contextProperties[],cl_device_type deviceType){
     cl_int err = CL_SUCCESS;
     if(contextProperties == NULL){
-       cl_context_properties contextProperties[]={CL_CONTEXT_PLATFORM, (cl_context_properties)*platform_vector_id, 0};
+       cl_context_properties contextProperties[]={CL_CONTEXT_PLATFORM, (cl_context_properties)platform_vector_id, 0};
     }
     this->context = clCreateContextFromType(contextProperties, deviceType, NULL, NULL, &err);
      if ((CL_SUCCESS != err) || (NULL == this->context))
@@ -178,10 +205,10 @@ cl_context OCL::context_with_properties(cl_platform_id* platform_vector_id ,cl_c
     return this->context; 
 }
 
-cl_command_queue OCL::commandQuene(cl_device_id* device_id, cl_context context_id){
+cl_command_queue OCL::commandQuene(cl_device_id device_id, cl_context context_id){
     cl_int err = CL_SUCCESS;
     const cl_command_queue_properties properties[] = {CL_QUEUE_PROPERTIES, CL_QUEUE_PROFILING_ENABLE, 0};
-    cl_command_queue queue = clCreateCommandQueueWithProperties(context_id, *device_id, properties, &err);
+    cl_command_queue queue = clCreateCommandQueueWithProperties(context_id, device_id, properties, &err);
       if (CL_SUCCESS != err)
         {
             throw  std::invalid_argument("get clCreateCommandQueueWithProperties() not functioning platform and device");        

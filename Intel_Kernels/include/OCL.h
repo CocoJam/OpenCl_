@@ -24,9 +24,9 @@ class OCL{
         float            deviceVersion;     // hold the OpenCL device version (default. 1.2)
         float            compilerVersion;   // hold the device OpenCL C version (default. 1.2)
         std::vector<cl_mem> memory_buffer;
-        cl_platform_id* platform_to_vec(cl_platform_id* platform_vector_id, cl_uint numPlatforms=NULL);
-        cl_uint num_of_platform_device(cl_platform_id* platform_id, cl_device_type deviceType);
-        cl_device_id* device_to_vec( cl_platform_id* platform_vector_id, cl_device_id* device_vector_id, cl_device_type deviceType = CL_DEVICE_TYPE_CPU, cl_uint numDevices=NULL);
+        void platform_to_vec(cl_platform_id* platform_vector_id, cl_uint numPlatforms=NULL);
+        cl_uint num_of_platform_device(cl_platform_id platform_id, cl_device_type deviceType);
+        void device_to_vec( cl_platform_id platform_vector_id, cl_device_id* device_vector_id, cl_device_type deviceType = CL_DEVICE_TYPE_CPU, cl_uint numDevices=NULL);
         template<class T>
         cl_int release_(cl_int(*func) (T), T item, std::string str);
         template<class T>
@@ -35,11 +35,11 @@ class OCL{
     public:
         OCL();
         ~OCL();
-        cl_platform_id* preferred_platform(const char* preffered_platform=NULL);
-        std::vector<cl_device_id> OCL::platform_device(cl_platform_id* platform_id,cl_device_type deviceType=CL_DEVICE_TYPE_CPU, cl_uint numDevices=0);
-        cl_context context_with_properties(cl_device_id* device_vector_id, cl_platform_id* platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices=0);
-        cl_context context_with_properties(cl_platform_id* platform_vector_id ,cl_context_properties contextProperties[]=NULL,cl_device_type deviceType=CL_DEVICE_TYPE_CPU);
-        cl_command_queue commandQuene(cl_device_id* device_id, cl_context context_id);
+        cl_platform_id preferred_platform(const char* preffered_platform=NULL);
+        std::vector<cl_device_id> OCL::platform_device(cl_platform_id platform_id,cl_device_type deviceType=CL_DEVICE_TYPE_CPU, cl_uint numDevices=0);
+        cl_context context_with_properties(cl_device_id device_vector_id, cl_platform_id platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices=0);
+        cl_context context_with_properties(cl_platform_id platform_vector_id ,cl_context_properties contextProperties[]=NULL,cl_device_type deviceType=CL_DEVICE_TYPE_CPU);
+        cl_command_queue commandQuene(cl_device_id device_id, cl_context context_id);
         cl_program prgoramWithSource(cl_context* context, const char* fileName);
         void programSourceFileReader(const char* fileName, char** source_ptr, size_t* src_size);
         cl_program* programBuild(cl_program* program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option="-I");

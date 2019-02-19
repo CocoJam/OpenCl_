@@ -1,7 +1,7 @@
 #include <Utils.hpp>
 #include <Platform.hpp>
 #include<iostream>
-
+#include  <OCL.h>
 #include <vector>
 #include <CL/CL.hpp>
 int main()
@@ -31,8 +31,10 @@ int main()
   cl::Device* d = new cl::Device(plat.GetDevice()[0]);
 
   std::cout <<"Device info: " << d->getInfo<CL_DEVICE_VERSION>()<<std::endl;
-  // std::cout <<"svm info: " << d->getInfo<CL_DEVICE_SVM_CAPABILITIES>()<<std::endl;
-  
   delete d;
+
+  // std::cout <<"svm info: " << d->getInfo<CL_DEVICE_SVM_CAPABILITIES>()<<std::endl;
+  OCL* ocl = new OCL();
+  delete ocl;
   return 0;
 }
