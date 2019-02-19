@@ -2,7 +2,7 @@
 #define p(x)\
     std::cout<<x<<std::endl;
          
-OCL::OCL(): 
+OCL::OCL(const char* preferred): 
         context(NULL),
         // device(std::vector<cl_device_id>),
         commandQueue(NULL),
@@ -13,30 +13,34 @@ OCL::OCL():
         compilerVersion(OPENCL_VERSION_1_2){
             setup();
         };
-        // memory_buffer(std::vector<cl_mem>)
 OCL::~OCL(){
-    release_<cl_context>(clReleaseContext, this->context, "Context");
-    release_<cl_command_queue>(clReleaseCommandQueue, this->commandQueue, "Queue");
+    release_<cl_context>(clReleaseContext, this->context, "context");
+    release_<cl_command_queue>(clReleaseCommandQueue, this->commandQueue, "queue");
     release_<cl_program>(clReleaseProgram, this->program, "Program");
     release_<cl_kernel>(clReleaseKernel, this->kernel, "Kernel");
+    std::cout<< "destory OCL object" <<std::endl;
 }
 
-void OCL::setup(){
+void OCL::setup(const char* preferred){
+    p("start")
     try{
-    cl_platform_id platform_ptr = preferred_platform("Intel");
-    // cl_int err = CL_SUCCESS;
-    // size_t stringLength = 0;
-    // err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, 0, NULL, &stringLength);
-    // std::vector<char> platformName(stringLength);
-    // err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, stringLength, &platformName[0], NULL);
-    // std::string str(platformName.begin(),platformName.end());
+    cl_platform_id platform_ptr = preferred_platform(preferred);
+    cl_int err = CL_SUCCESS;
+    size_t stringLength = 0;
+    err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, 0, NULL, &stringLength);
+    std::vector<char> platformName(stringLength);
+    err = clGetPlatformInfo(platform_ptr, CL_PLATFORM_NAME, stringLength, &platformName[0], NULL);
+    std::string str(platformName.begin(),platformName.end());
+    p(str)
     cl_uint num =  num_of_platform_device(platform_ptr, CL_DEVICE_TYPE_GPU);
     this->device = platform_device(platform_ptr, CL_DEVICE_TYPE_GPU);
     this->context = context_with_properties(this->device[0],platform_ptr,NULL, this->device.size());
     std::vector<cl_command_queue> queue(device.size());
     for(int i=0;i<queue.size();i++){
         queue[i] = commandQuene(device[i],context);
-        }
+    }
+    this->commandQueue = queue;
+    p("end")
     }
     catch(std::invalid_argument& e){
         std::cout<< e.what()<<std::endl;
@@ -45,13 +49,8 @@ void OCL::setup(){
 
 template<class T>
 void OCL::release_(cl_int (*func) (T), std::vector<T> item, std::string str){
-    const char* s = typeid(item).name();
-    const char* vector_name = "St6vector";
-    std::string::const_iterator it;
-    if (strstr(s, vector_name) != 0){
-           for(auto& i:item){
-            release_<T>(func, i, str);
-        }
+    for(int i=0;i< item.size();i++){
+        release_<T>(func,(T) item[i], str);
     }
 }
 
@@ -217,12 +216,12 @@ cl_command_queue OCL::commandQuene(cl_device_id device_id, cl_context context_id
     return queue;
 }
 
-cl_program OCL::prgoramWithSource(cl_context* context, const char* fileName){
+cl_program OCL::prgoramWithSource(cl_context context, const char* fileName){
     char* source = NULL;
     size_t src_size = 0;
     cl_int err = CL_SUCCESS;
     programSourceFileReader(fileName, &source, &src_size);
-    cl_program program = clCreateProgramWithSource(*context, 1, (const char**)&source, &src_size, &err);
+    cl_program program = clCreateProgramWithSource(context, 1, (const char**)&source, &src_size, &err);
     if(err!= CL_SUCCESS){
         throw std::invalid_argument("Program can not be created");
         return NULL;
@@ -251,24 +250,24 @@ void OCL::programSourceFileReader(const char* fileName, char** source_ptr, size_
     return;
 }
 
-cl_program* OCL::programBuild(cl_program* program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option){
+cl_program OCL::programBuild(cl_program program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option){
     cl_int err = CL_SUCCESS;
-    err = clBuildProgram(*program, numOfDevices, (const cl_device_id*)device_vector_id[0], option, 0,0);
+    err = clBuildProgram(program, numOfDevices, (const cl_device_id*)device_vector_id[0], option, 0,0);
     if(err == CL_BUILD_PROGRAM_FAILURE){
         for(int i=0;i< (size_t)numOfDevices; i++){
             size_t log_length = 0;
-            err = clGetProgramBuildInfo(*program,device_vector_id[i],CL_PROGRAM_BUILD_LOG,0,0,&log_length);
+            err = clGetProgramBuildInfo(program,device_vector_id[i],CL_PROGRAM_BUILD_LOG,0,0,&log_length);
             std::vector<char> log(log_length);
-            err = clGetProgramBuildInfo(*program,device_vector_id[i],CL_PROGRAM_BUILD_LOG, log_length, &log[0], 0);
+            err = clGetProgramBuildInfo(program,device_vector_id[i],CL_PROGRAM_BUILD_LOG, log_length, &log[0], 0);
             throw std::invalid_argument(std::string(&log[0]));
         }
     }
     return program;
 }
 
-cl_kernel OCL::kernelBuild(cl_program* program, const char* fileName){
+cl_kernel OCL::kernelBuild(cl_program program, const char* fileName){
     cl_int err = CL_SUCCESS;
-    cl_kernel kernel = clCreateKernel(*program, fileName, &err);
+    cl_kernel kernel = clCreateKernel(program, fileName, &err);
     if(err!=CL_SUCCESS){
         throw std::invalid_argument("Kernerl Build error");
         return NULL;

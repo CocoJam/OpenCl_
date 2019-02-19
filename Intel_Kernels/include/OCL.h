@@ -31,18 +31,18 @@ class OCL{
         cl_int release_(cl_int(*func) (T), T item, std::string str);
         template<class T>
         void release_(cl_int (*func) (T), std::vector<T> item, std::string str);
-        void setup();
+        void setup(const char* preferred=NULL);
     public:
-        OCL();
+        OCL(const char* preferred=NULL);
         ~OCL();
         cl_platform_id preferred_platform(const char* preffered_platform=NULL);
         std::vector<cl_device_id> OCL::platform_device(cl_platform_id platform_id,cl_device_type deviceType=CL_DEVICE_TYPE_CPU, cl_uint numDevices=0);
         cl_context context_with_properties(cl_device_id device_vector_id, cl_platform_id platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices=0);
         cl_context context_with_properties(cl_platform_id platform_vector_id ,cl_context_properties contextProperties[]=NULL,cl_device_type deviceType=CL_DEVICE_TYPE_CPU);
         cl_command_queue commandQuene(cl_device_id device_id, cl_context context_id);
-        cl_program prgoramWithSource(cl_context* context, const char* fileName);
+        cl_program prgoramWithSource(cl_context context, const char* fileName);
         void programSourceFileReader(const char* fileName, char** source_ptr, size_t* src_size);
-        cl_program* programBuild(cl_program* program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option="-I");
-        cl_kernel kernelBuild(cl_program* program, const char* fileName);
+        cl_program programBuild(cl_program program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option="-I");
+        cl_kernel kernelBuild(cl_program program, const char* fileName);
 };
 #endif
