@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <exception>
 #include <fstream>
+#include <Def.h>
 #include "CL\cl.h"
 #include "CL\cl_ext.h"
 // Macros for OpenCL versions

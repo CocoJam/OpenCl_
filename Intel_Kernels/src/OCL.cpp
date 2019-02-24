@@ -1,12 +1,4 @@
 #include "OCL.h"
-#define p(x)\
-    std::cout<<x<<std::endl;
-#define rethrow_block\
-    catch(std::invalid_argument& e){\
-        std::cout << e.what() << "\nCaugh Error at "<<__LINE__<<" at "<<__FILE__<<"\n";\
-        throw;\
-    }
-#define pos __LINE__," ",__FILE__;
 OCL::OCL(const char* preferred): 
         context(NULL),
         // device(std::vector<cl_device_id>),
@@ -26,23 +18,7 @@ OCL::~OCL(){
     std::cout<< "destory OCL object" <<std::endl;
 }
 
-template<typename T,typename... Args>
-void concat_stream(std::stringstream& ss,T t ,Args... args){
-    concat_stream(ss, t);
-    concat_stream(ss, args...);
-}
-template <typename T>
-void concat_stream(std::stringstream& o, T t)
-{
-    o << t;
-}
-template<typename... Args>
-std::string LogAll(Args... args)
-{
-    std::stringstream oss;
-    concat_stream(oss, args...);
-    return oss.str();
-}
+
 
 void OCL::setup(const char* preferred){
     p("start")
@@ -276,14 +252,10 @@ void OCL::programSourceFileReader(const char* fileName, char** source_ptr, size_
         *src_size =(size_t)infile.tellg();
         infile.seekg (0, infile.beg);
         *source_ptr = new char [*src_size];
-        // infile >> data_buffer; 
         infile.read (*source_ptr,*src_size);
         infile.close();
     }else{
         std::cout<< "File fail"<<std::endl;
-        std::stringstream ss;
-        // ss<<"File: "<<fileName<< " can not be opened ";
-        LogAll("File: ",fileName," can not be opened ");
         throw std::invalid_argument(LogAll("File: ",fileName," can not be opened " ,__LINE__," ",__FILE__));
     }
     return;
