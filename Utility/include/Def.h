@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <stdlib.h>
 #define rethrow_block\
     catch(std::invalid_argument& e){\
         std::cout << e.what() << "\nCaugh Error at "<<__LINE__<<" at "<<__FILE__<<"\n";\
@@ -11,6 +12,8 @@
 #define catch_block\
     catch(std::invalid_argument& e){\
         std::cout << e.what() << "\nCaugh Error at "<<__LINE__<<" at "<<__FILE__<<"\n";\
+        std::cout << "Program Exit(EXIT_FAILURE) terminating."<< "\n";\
+        exit(EXIT_FAILURE);\
     }
 #define p(x)\
     std::cout<<x<<"\n";
