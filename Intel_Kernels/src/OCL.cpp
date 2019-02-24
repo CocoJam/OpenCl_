@@ -1,7 +1,12 @@
 #include "OCL.h"
 #define p(x)\
     std::cout<<x<<std::endl;
-         
+#define rethrow_block\
+    catch(std::invalid_argument& e){\
+        std::cout << e.what() << "\nCaugh Error at "<<__LINE__<<" at "<<__FILE__<<"\n";\
+        throw;\
+    }
+#define pos __LINE__," ",__FILE__;
 OCL::OCL(const char* preferred): 
         context(NULL),
         // device(std::vector<cl_device_id>),
@@ -19,6 +24,24 @@ OCL::~OCL(){
     release_<cl_program>(clReleaseProgram, this->program, "Program");
     release_<cl_kernel>(clReleaseKernel, this->kernel, "Kernel");
     std::cout<< "destory OCL object" <<std::endl;
+}
+
+template<typename T,typename... Args>
+void concat_stream(std::stringstream& ss,T t ,Args... args){
+    concat_stream(ss, t);
+    concat_stream(ss, args...);
+}
+template <typename T>
+void concat_stream(std::stringstream& o, T t)
+{
+    o << t;
+}
+template<typename... Args>
+std::string LogAll(Args... args)
+{
+    std::stringstream oss;
+    concat_stream(oss, args...);
+    return oss.str();
 }
 
 void OCL::setup(const char* preferred){
@@ -92,7 +115,13 @@ cl_platform_id OCL::preferred_platform(const char* preffered_platform){
     std::vector<cl_platform_id> platforms(numPlatforms);
     
      if(preffered_platform != NULL){
-        platform_to_vec(&platforms[0],numPlatforms);
+         try{
+            platform_to_vec(&platforms[0],numPlatforms);        
+         }catch(std::invalid_argument& e){
+             std::cout<< e.what()<<std::endl;
+             throw;
+             return NULL;
+         }
         for(int i=0;i<numPlatforms;i++){
             err = clGetPlatformInfo(platforms[i], CL_PLATFORM_NAME, 0, NULL, &stringLength);
             std::vector<char> platformName(stringLength);
@@ -108,7 +137,13 @@ cl_platform_id OCL::preferred_platform(const char* preffered_platform){
                 }
         }
     }else{
-        platform_to_vec(&platforms[0],numPlatforms);
+        try{
+            platform_to_vec(&platforms[0],numPlatforms);        
+         }catch(std::invalid_argument& e){
+             std::cout<< e.what()<<std::endl;
+             throw;
+             return NULL;
+         }
         return platforms[0];
     }
 }
@@ -220,7 +255,10 @@ cl_program OCL::prgoramWithSource(cl_context context, const char* fileName){
     char* source = NULL;
     size_t src_size = 0;
     cl_int err = CL_SUCCESS;
-    programSourceFileReader(fileName, &source, &src_size);
+    try{
+        programSourceFileReader(fileName, &source, &src_size);
+    }
+    rethrow_block;
     cl_program program = clCreateProgramWithSource(context, 1, (const char**)&source, &src_size, &err);
     if(err!= CL_SUCCESS){
         throw std::invalid_argument("Program can not be created");
@@ -242,10 +280,11 @@ void OCL::programSourceFileReader(const char* fileName, char** source_ptr, size_
         infile.read (*source_ptr,*src_size);
         infile.close();
     }else{
-        std::string err = "File: ";
-        err+= fileName;
-        err+=" can not be opened";
-        throw std::invalid_argument(err.c_str());
+        std::cout<< "File fail"<<std::endl;
+        std::stringstream ss;
+        // ss<<"File: "<<fileName<< " can not be opened ";
+        LogAll("File: ",fileName," can not be opened ");
+        throw std::invalid_argument(LogAll("File: ",fileName," can not be opened " ,__LINE__," ",__FILE__));
     }
     return;
 }
@@ -269,6 +308,7 @@ cl_kernel OCL::kernelBuild(cl_program program, const char* fileName){
     cl_int err = CL_SUCCESS;
     cl_kernel kernel = clCreateKernel(program, fileName, &err);
     if(err!=CL_SUCCESS){
+        std::cout<< "kernel build fail"<<std::endl;
         throw std::invalid_argument("Kernerl Build error");
         return NULL;
     }

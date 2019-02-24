@@ -6,6 +6,7 @@
 #include <vector>
 #include <typeinfo>
 #include <algorithm>
+#include <exception>
 #include <fstream>
 #include "CL\cl.h"
 #include "CL\cl_ext.h"
@@ -14,7 +15,7 @@
 #define OPENCL_VERSION_2_0  2.0f
 
 class OCL{
-    private:
+    protected:
         cl_context       context;           // hold the context handler
         std::vector<cl_device_id>     device;            // hold the selected device handler
         std::vector<cl_command_queue> commandQueue;      // hold the commands-queue handler

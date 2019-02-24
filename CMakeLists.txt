@@ -7,8 +7,11 @@ project(project_GPU)
 # add_subdirectory(General)
 include_directories("C:\\Intel\\OpenCL\\sdk\\include")
 link_directories("C:\\Intel\\OpenCL\\sdk\\lib\\x64")
+add_subdirectory(Utility)
 add_subdirectory(Kernels)
 add_subdirectory(Intel_Kernels)
+
+
 
 
 add_executable(main main.cpp)
@@ -41,6 +44,7 @@ target_link_libraries(
     # data_structure
     OpenCL.lib
     kernels
+    Def
     Intel_OpenCL
     # ${Boost_LIBRARIES}
     # Boost::filesystem
