@@ -1,4 +1,6 @@
 #include "OCL.h"
+
+#include <filesystem>
 OCL::OCL(const char* preferred): 
         context(NULL),
         // device(std::vector<cl_device_id>),
@@ -41,9 +43,7 @@ void OCL::setup(const char* preferred){
     this->commandQueue = queue;
     p("end")
     }
-    catch(std::invalid_argument& e){
-        std::cout<< e.what()<<std::endl;
-    }
+    catch_block(this);
 }
 
 template<class T>
@@ -60,17 +60,17 @@ cl_int OCL::release_(cl_int (*func) (T), T item, std::string str){
             std::cout<< str << " is NULL"<< std::endl;
             return CL_INVALID_EVENT;
         }
-        cl_int ciErrNum = func(item_ptr);
-    if(ciErrNum == CL_SUCCESS){
+        cl_int err = func(item_ptr);
+    if(err == CL_SUCCESS){
             std::cout<< str <<" released"<<std::endl;
         }
         else if(&item == NULL){
-                std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
+            std::cout<< str <<" not released, due to Null of "<< str<<std::endl;
         }
         else{
                 std::cout<< str <<" not released"<<std::endl;        
         }
-        return ciErrNum;
+        return err;
 }
 
 cl_platform_id OCL::preferred_platform(const char* preffered_platform){
@@ -80,7 +80,7 @@ cl_platform_id OCL::preferred_platform(const char* preffered_platform){
      err = clGetPlatformIDs(0, NULL, &numPlatforms);
     if (CL_SUCCESS != err)
     {
-        throw  std::invalid_argument("get clGetPlatformID() not functioning");
+        throw  std::invalid_argument(throw_error("get clGetPlatformID() not functioning"," ",OpenCLError(err)));
         return NULL;
     }
     if(numPlatforms < 1){
@@ -103,7 +103,7 @@ cl_platform_id OCL::preferred_platform(const char* preffered_platform){
             std::vector<char> platformName(stringLength);
             err = clGetPlatformInfo(platforms[i], CL_PLATFORM_NAME, stringLength, &platformName[0], NULL);
             if(err!= CL_SUCCESS){
-                    throw  std::invalid_argument("get clGetPlatformInfo() not functioning");
+                    throw  std::invalid_argument(throw_error("get clGetPlatformInfo() not functioning"," ",OpenCLError(err)));
                     return NULL;
                 }
                 if (strstr(&platformName[0], preffered_platform) != 0)
@@ -129,7 +129,7 @@ void OCL::platform_to_vec(cl_platform_id* platform_vector_id, cl_uint numPlatfor
     err = clGetPlatformIDs(numPlatforms, platform_vector_id, NULL);
          if (CL_SUCCESS != err)
         {   
-            throw  std::invalid_argument("get clGetPlatformID() not functioning of: ");        
+            throw  std::invalid_argument(throw_error("get clGetPlatformID() not functioning of:"," ",OpenCLError(err)));        
             // return NULL;
         }
         
@@ -140,15 +140,14 @@ std::vector<cl_device_id> OCL::platform_device(cl_platform_id platform_id,cl_dev
     if(numDevices <1){
        numDevices  = num_of_platform_device(platform_id,deviceType);
         if(numDevices <1){
-            throw std::invalid_argument("Less than 1 number of Devices");
+            throw std::invalid_argument(throw_error("Less than 1 number of Devices"));
         }
     }
-
     std::vector<cl_device_id> device_to_vector(numDevices);
-    // for(int i=0;i<numDevices;i++){
-    //     device_to_vec(platform_id, &device_to_vector[i], deviceType, numDevices);
-    // }
-    device_to_vec(platform_id, &device_to_vector[0], deviceType, numDevices);
+    try{
+        device_to_vec(platform_id, &device_to_vector[0], deviceType, numDevices);
+    }
+    rethrow_block;
     return device_to_vector;
 }
 
@@ -166,7 +165,7 @@ cl_uint OCL::num_of_platform_device(cl_platform_id platform_id, cl_device_type d
     
     
     if(err != CL_SUCCESS){
-        throw std::invalid_argument("can not access number of devices");
+        throw std::invalid_argument(throw_error("can not access number of devices"," ",OpenCLError(err)));
     }
     return num_of_devices;
 }
@@ -176,7 +175,7 @@ void OCL::device_to_vec( cl_platform_id platform_vector_id, cl_device_id* device
     err = clGetDeviceIDs(platform_vector_id, deviceType, numDevices, device_vector_id, NULL);
         if (CL_SUCCESS != err)
         {
-            throw  std::invalid_argument("get clGetDeviceIDs() not functioning and device");        
+            throw  std::invalid_argument(throw_error("get clGetDeviceIDs() not functioning and device"," ",OpenCLError(err)));        
             // return NULL;
         }
     // return device_vector_id;
@@ -195,7 +194,7 @@ cl_context OCL::context_with_properties(cl_device_id device_vector_id, cl_platfo
     this->context = clCreateContext(&contextProperties[0], numdevices, &device_vector_id, 0, 0, &err);
      if ((CL_SUCCESS != err) || (NULL == this->context))
     {
-        throw  std::invalid_argument("get clCreateContextFromType() not within this plafrom");
+        throw  std::invalid_argument(throw_error("get clCreateContextFromType() not within this plafrom"," ",OpenCLError(err)));
         return NULL;
     }
     return this->context; 
@@ -209,7 +208,7 @@ cl_context OCL::context_with_properties(cl_platform_id platform_vector_id ,cl_co
     this->context = clCreateContextFromType(contextProperties, deviceType, NULL, NULL, &err);
      if ((CL_SUCCESS != err) || (NULL == this->context))
     {
-        throw  std::invalid_argument("get clCreateContextFromType() not within this plafrom");
+        throw  std::invalid_argument(throw_error("get clCreateContextFromType() not within this plafrom"," ",OpenCLError(err)));
         return NULL;
     }
     return this->context; 
@@ -221,7 +220,7 @@ cl_command_queue OCL::commandQuene(cl_device_id device_id, cl_context context_id
     cl_command_queue queue = clCreateCommandQueueWithProperties(context_id, device_id, properties, &err);
       if (CL_SUCCESS != err)
         {
-            throw  std::invalid_argument("get clCreateCommandQueueWithProperties() not functioning platform and device");        
+            throw  std::invalid_argument(throw_error("get clCreateCommandQueueWithProperties() not functioning platform and device"," ",OpenCLError(err)));        
             return NULL;
         }
     return queue;
@@ -237,7 +236,7 @@ cl_program OCL::prgoramWithSource(cl_context context, const char* fileName){
     rethrow_block;
     cl_program program = clCreateProgramWithSource(context, 1, (const char**)&source, &src_size, &err);
     if(err!= CL_SUCCESS){
-        throw std::invalid_argument("Program can not be created");
+        throw std::invalid_argument(throw_error("Program can not be created"," ",OpenCLError(err)));
         return NULL;
     }
     delete source;
@@ -245,33 +244,51 @@ cl_program OCL::prgoramWithSource(cl_context context, const char* fileName){
 }
 
 void OCL::programSourceFileReader(const char* fileName, char** source_ptr, size_t* src_size){
+    char buf[4096];
+    std::cout  << "CWD: " << cwd(buf, sizeof buf) << std::endl;
     std::ifstream infile; 
     infile.open(fileName, std::ifstream::binary);
     if(infile){
-        infile.seekg (0, infile.end);
+        infile.seekg(0, infile.end);
         *src_size =(size_t)infile.tellg();
         infile.seekg (0, infile.beg);
         *source_ptr = new char [*src_size];
         infile.read (*source_ptr,*src_size);
         infile.close();
     }else{
-        std::cout<< "File fail"<<std::endl;
-        throw std::invalid_argument(LogAll("File: ",fileName," can not be opened " ,__LINE__," ",__FILE__));
+        char buf[4096];
+        std::cout  << "CWD: " << cwd(buf, sizeof buf) << std::endl;
+        throw std::invalid_argument(throw_error("File: ",fileName," can not be opened"));
     }
     return;
 }
 
 cl_program OCL::programBuild(cl_program program, cl_uint numOfDevices, cl_device_id* device_vector_id, const char* option){
     cl_int err = CL_SUCCESS;
-    err = clBuildProgram(program, numOfDevices, (const cl_device_id*)device_vector_id[0], option, 0,0);
+    err = clBuildProgram(program, numOfDevices, (const cl_device_id*)device_vector_id, option, 0,0);
     if(err == CL_BUILD_PROGRAM_FAILURE){
         for(int i=0;i< (size_t)numOfDevices; i++){
             size_t log_length = 0;
             err = clGetProgramBuildInfo(program,device_vector_id[i],CL_PROGRAM_BUILD_LOG,0,0,&log_length);
             std::vector<char> log(log_length);
             err = clGetProgramBuildInfo(program,device_vector_id[i],CL_PROGRAM_BUILD_LOG, log_length, &log[0], 0);
-            throw std::invalid_argument(std::string(&log[0]));
+            throw std::invalid_argument(throw_error(std::string(&log[0])," ",OpenCLError(err)));
         }
+    }
+    if(err == CL_INVALID_DEVICE){
+            std::stringstream ss;
+            ss<< OpenCLError(err)<<" Devices of "<< numOfDevices<<" available->";
+            size_t stringLength = 0;
+            err= clGetDeviceInfo(device_vector_id[0],CL_DEVICE_AVAILABLE,0,NULL,&stringLength);
+            std::vector<cl_bool> DeviceAvailable(stringLength/sizeof(cl_bool));
+            err= clGetDeviceInfo(device_vector_id[0],CL_DEVICE_AVAILABLE,stringLength,&DeviceAvailable[0],NULL);
+            for(int j=0;j<DeviceAvailable.size();j++){
+                ss<<" "<<DeviceAvailable[j];
+            }
+            throw std::invalid_argument(throw_error(ss.str()));
+    }
+    if(err != CL_SUCCESS){
+        throw std::invalid_argument(throw_error(OpenCLError(err)));
     }
     return program;
 }
@@ -280,9 +297,7 @@ cl_kernel OCL::kernelBuild(cl_program program, const char* fileName){
     cl_int err = CL_SUCCESS;
     cl_kernel kernel = clCreateKernel(program, fileName, &err);
     if(err!=CL_SUCCESS){
-        std::cout<< "kernel build fail"<<std::endl;
-        throw std::invalid_argument("Kernerl Build error");
-        return NULL;
+        throw std::invalid_argument(throw_error("Kernerl Build error"," with building name of ",fileName, " ",OpenCLError(err)));
     }
     return kernel;
 }

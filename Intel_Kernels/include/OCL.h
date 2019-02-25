@@ -37,7 +37,7 @@ class OCL{
     public:
         OCL(const char* preferred=NULL);
         ~OCL();
-        cl_platform_id preferred_platform(const char* preffered_platform=NULL);
+        cl_platform_id preferred_platform(const char* preffered_platform="Intel");
         std::vector<cl_device_id> OCL::platform_device(cl_platform_id platform_id,cl_device_type deviceType=CL_DEVICE_TYPE_CPU, cl_uint numDevices=0);
         cl_context context_with_properties(cl_device_id device_vector_id, cl_platform_id platform_vector_id ,cl_context_properties contextProperties[],cl_uint numdevices=0);
         cl_context context_with_properties(cl_platform_id platform_vector_id ,cl_context_properties contextProperties[]=NULL,cl_device_type deviceType=CL_DEVICE_TYPE_CPU);

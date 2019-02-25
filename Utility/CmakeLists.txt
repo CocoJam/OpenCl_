@@ -7,12 +7,13 @@ file(GLOB_RECURSE HEADER_FILES_  ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB_RECURSE LIB_SOURCE_FILES_  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_library(Def ${HEADER_FILES_} ${LIB_SOURCE_FILES_})
-
-# target_link_libraries(
-#     Intel_OpenCL
-#     OpenCL.lib
-# )
-
+FIND_PACKAGE(OpenCL REQUIRED)
+INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIR})
+link_directories(${OpenCL_LIBRARY})
+target_link_libraries(
+    Def
+    OpenCL::OpenCL
+)
 
 target_include_directories(
     Def

@@ -69,6 +69,7 @@
         "*.tcc": "cpp",
         "clocale": "cpp",
         "cwctype": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "string_view": "cpp"
     }
 }
